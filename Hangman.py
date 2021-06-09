@@ -1,6 +1,7 @@
 
 import json
 import requests
+import random
 
 
 def drawhangman(wronganswers):
@@ -28,6 +29,24 @@ def drawhangman(wronganswers):
     print(" |")
     print("----")
 
+def getword():
+    # get random word from random word api
+    try:
+        data = requests.get("https://random-word-api.herokuapp.com/word?number=1")
+        if not data.ok:
+            raise ConnectionError
+        
+    except ConnectionError:
+        print("I can't seem to connect to the random word api. I'll get a backup word.")
+        with open("dictionary.txt", "r") as infile:
+
+            dictionary = json.load(infile)
+            randomnum = random.uniform(0, len(dictionary))
+            word = dictionary[int(randomnum)]
+            return word
+
+    word = data.json()[0]
+    return word
 
 startwronganswers = 6
 game = True
@@ -37,9 +56,7 @@ print(f"Welcome to Hangman! I've selected a random word. Guess a letter to revea
 while game:
     wronganswers = startwronganswers
 
-    # get random word from random word api
-    data = requests.get("https://random-word-api.herokuapp.com/word?number=1")
-    word = data.json()[0]
+    word = getword()
 
     guesses = []
 
